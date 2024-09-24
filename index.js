@@ -33,10 +33,11 @@ const AnalogySchema = z.object({
   lesson: z.string(),
 });
 
-// Schema for Stakeholder (Individual Stakeholder) 👤
+// Schema for Stakeholder (Individual Stakeholder) 👤 (Updated)
 const StakeholderSchema = z.object({
   name: z.string(),
   role: z.string(),
+  description: z.string(), // Add description property
 });
 
 // Schema for Stakeholder Analysis (List of Stakeholders) 👥
@@ -83,7 +84,7 @@ async function generateMarkdownForScenario(scenario, items) {
 
       markdownContent += `**Stakeholders:**\n\n`;
       for (const stakeholder of stakeholders) {
-        markdownContent += `- **${stakeholder.name}:** ${stakeholder.role} *[Provide a brief description of their role in this scenario here]*\n`;
+        markdownContent += `- **${stakeholder.name}:** ${stakeholder.role} - ${stakeholder.description}\n`; // Use stakeholder.description
       }
       markdownContent += "\n";
     }
@@ -119,7 +120,7 @@ async function saveToFile(content) {
 async function analyzeStakeholders(scenarioItem) {
   try {
     const stakeholderPrompt = `
-    Identify key stakeholders who would be significantly affected by the following AI scenario step: "${scenarioItem}"
+    Identify up to 5 key stakeholders who would be significantly affected by the following AI scenario step: "${scenarioItem}"
 
     Consider governments, businesses, individuals, specific communities, or other relevant groups.
 
@@ -129,15 +130,16 @@ async function analyzeStakeholders(scenarioItem) {
       "stakeholders": [
         {
           "name": "Name or type of stakeholder",
-          "role": "Role of the stakeholder (e.g., Beneficiary, Regulator, Developer)"
+          "role": "Role of the stakeholder (e.g., Beneficiary, Regulator, Developer)",
+          "description": "Brief description of the stakeholder's role in this specific scenario" 
         },
-        // ... more stakeholders
+        // ... more stakeholders (up to 5)
       ]
     }
     `;
 
     const stakeholders = await getStructuredOutput(stakeholderPrompt, StakeholdersSchema);
-    return stakeholders.stakeholders; // Access the array from the response object
+    return stakeholders.stakeholders; 
   } catch (error) {
     console.error("Error analyzing stakeholders:", error);
     throw error;
