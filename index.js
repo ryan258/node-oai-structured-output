@@ -14,7 +14,7 @@ const openai = new OpenAI({
 
 // Define Zod schemas for structured outputs from the OpenAI API
 
-// Schema for the initial AI doom scenarios
+// Schema for the initial AI scenarios (positive in this case)
 const ScenarioSchema = z.object({
   title: z.string(),
   description: z.string(),
@@ -59,7 +59,7 @@ async function generateMarkdown(scenariosData) {
   `;
 
   // Get the Markdown output from the AI agent (no schema needed here)
-  const completion = await openai.chat.completions.create({ 
+  const completion = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       { role: "system", content: "You are a helpful assistant." },
@@ -76,7 +76,7 @@ async function generateMarkdown(scenariosData) {
 // in a /logs directory
 async function saveToFile(content) {
   const timestamp = new Date().toISOString().replace(/:/g, '-');
-  const filename = `ai_doom_scenarios_${timestamp}.md`;
+  const filename = `ai_positive_scenarios_${timestamp}.md`; // Updated filename
   const directory = './logs'; // Directory to save the files
 
   // Create the directory if it doesn't exist
@@ -95,11 +95,35 @@ async function saveToFile(content) {
 // Main function
 async function main() {
   try {
-    // Prompt for generating AI doom scenarios
-    const scenariosPrompt = `Generate a list of 3 ways AI could positively advance humanity, formatted as a JSON object with the following fields: 
-      - title (a short, descriptive title for each scenario)
-      - description (a brief explanation of the scenario)
-      - items (a list of specific steps or events that contribute to the scenario).`;
+    // Prompt for generating positive AI scenarios
+    const scenariosPrompt = `Imagine a future where AI is used to create a more equitable, sustainable, and fulfilling world for everyone. 
+
+Describe 5 detailed and distinct scenarios illustrating how AI could positively advance humanity in this ideal future. 
+
+Ensure that each scenario explores a unique aspect of AI's positive potential and does not overlap significantly with other scenarios. Consider a wide range of domains where AI could have a transformative impact, such as:
+
+- Social impact and governance
+- Environmental protection and resource management
+- Scientific breakthroughs and technological innovation
+- Healthcare, well-being, and longevity
+- Education, creativity, and self-fulfillment
+
+Format the output as a JSON array like this:
+
+[
+  {
+    "title": "Example Title 1", 
+    "description": "Example Description 1", 
+    "items": ["Item 1", "Item 2", "Item 3"]
+  },
+  // ... more scenarios
+]
+
+Each scenario object should include:
+- "title": A short, descriptive title (maximum 20 words).
+- "description": A concise explanation of the scenario (maximum 50 words).
+- "items": A list of 3 to 5 specific steps or events that contribute to the scenario. 
+`;
 
     // Get the scenarios using the defined schema
     const scenariosResult = await getStructuredOutput(scenariosPrompt, ScenarioSchema);
@@ -113,19 +137,42 @@ async function main() {
     for (const scenario of scenarios) {
       console.log("Scenario:", scenario);
 
-      // Declare eta and analogy variables in the outer loop scope
-      let eta;
-      let analogy;
-
       // Process each item (step) within the scenario
       for (const item of scenario.items) {
         // Generate ETA for the item
-        const etaPrompt = `Considering this step towards a positive AI scenario: "${item}", provide an estimated timeline (ETA) for its potential realization in a concise sentence, and format it as a JSON object with a top-level key named 'eta'.`;
-        eta = await getStructuredOutput(etaPrompt, ETASchema);
+        const etaPrompt = `Consider the following step towards a positive AI scenario: "${item}"
+
+        Provide your best estimate for when this step could be realized, considering current technological trends and potential advancements. 
+        
+        Format your response as a JSON object with this structure:
+        
+        {
+          "eta": "Concise sentence describing the estimated timeline." 
+        }
+        
+        Be specific and provide a realistic timeframe whenever possible (e.g., "Within the next 5 years," "By the early 2030s," "Likely beyond 2050"). If the timeframe is highly uncertain, acknowledge the uncertainty and explain why.
+        `;
+        const eta = await getStructuredOutput(etaPrompt, ETASchema); // Declare eta here
 
         // Generate historical analogy for the item
-        const analogyPrompt = `Provide a historical analogy for this step towards a positive AI scenario: "${item}". Output a JSON object with the 'event', a description of the 'similarity', and a potential 'lesson' learned from the historical event.`;
-        analogy = await getStructuredOutput(analogyPrompt, AnalogySchema);
+        const analogyPrompt = `Consider this step towards a positive AI scenario: "${item}"
+
+Provide a historical analogy that highlights a similar advancement or event that had a significant positive impact on humanity.
+
+Format your response as a JSON object with this structure:
+
+{
+  "event": "Name or brief description of the historical event",
+  "similarity": "Explanation of the key similarities between the historical event and the AI scenario step",
+  "lesson": "A valuable lesson or insight that can be drawn from the historical event and applied to the AI scenario"
+}
+
+Focus on analogies that:
+- Demonstrate the potential positive impact of technological advancements.
+- Highlight the importance of careful planning, ethical considerations, and societal adaptation.
+- Offer valuable lessons for navigating the challenges and opportunities of the AI scenario.
+`;
+        const analogy = await getStructuredOutput(analogyPrompt, AnalogySchema); // Declare analogy here
 
         console.log("  Item:", item);
         console.log("    ETA:", eta);
