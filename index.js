@@ -51,7 +51,7 @@ async function getStructuredOutput(prompt, schema = null) {
 // Function to generate Markdown content using an AI agent
 async function generateMarkdown(scenariosData) {
   const markdownPrompt = `
-  Format the following AI doom scenario data as a Markdown document:
+  Format the following positive and ideal AI scenario data as a Markdown document:
 
   ${JSON.stringify(scenariosData)}
 
@@ -96,7 +96,7 @@ async function saveToFile(content) {
 async function main() {
   try {
     // Prompt for generating AI doom scenarios
-    const scenariosPrompt = `Generate a list of 3 ways AI could doom humanity, formatted as a JSON object with the following fields: 
+    const scenariosPrompt = `Generate a list of 3 ways AI could positively advance humanity, formatted as a JSON object with the following fields: 
       - title (a short, descriptive title for each scenario)
       - description (a brief explanation of the scenario)
       - items (a list of specific steps or events that contribute to the scenario).`;
@@ -120,11 +120,11 @@ async function main() {
       // Process each item (step) within the scenario
       for (const item of scenario.items) {
         // Generate ETA for the item
-        const etaPrompt = `Considering this step towards an AI doom scenario: "${item}", provide an estimated timeline (ETA) for its potential realization in a concise sentence, and format it as a JSON object with a top-level key named 'eta'.`;
+        const etaPrompt = `Considering this step towards a positive AI scenario: "${item}", provide an estimated timeline (ETA) for its potential realization in a concise sentence, and format it as a JSON object with a top-level key named 'eta'.`;
         eta = await getStructuredOutput(etaPrompt, ETASchema);
 
         // Generate historical analogy for the item
-        const analogyPrompt = `Provide a historical analogy for this step towards an AI doom scenario: "${item}". Output a JSON object with the 'event', a description of the 'similarity', and a potential 'lesson' learned from the historical event.`;
+        const analogyPrompt = `Provide a historical analogy for this step towards a positive AI scenario: "${item}". Output a JSON object with the 'event', a description of the 'similarity', and a potential 'lesson' learned from the historical event.`;
         analogy = await getStructuredOutput(analogyPrompt, AnalogySchema);
 
         console.log("  Item:", item);
