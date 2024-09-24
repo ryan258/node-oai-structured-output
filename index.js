@@ -35,13 +35,13 @@ const AnalogySchema = z.object({
 
 // Schema for Stakeholder (Individual Stakeholder) 👤
 const StakeholderSchema = z.object({
-  name: z.string(), 
-  role: z.string(), 
+  name: z.string(),
+  role: z.string(),
 });
 
 // Schema for Stakeholder Analysis (List of Stakeholders) 👥
 const StakeholdersSchema = z.object({
-  stakeholders: z.array(StakeholderSchema), // Now StakeholderSchema is defined
+  stakeholders: z.array(StakeholderSchema),
 });
 
 // Function to get structured output from the OpenAI API 🤖
@@ -59,33 +59,35 @@ async function getStructuredOutput(prompt, schema = null) {
 
     return completion.choices[0].message.parsed;
   } catch (error) {
-    console.error("Error getting structured output from OpenAI:", error); 
+    console.error("Error getting structured output from OpenAI:", error);
     throw error; // Re-throw the error to be handled at a higher level
   }
 }
 
-// Function to generate Markdown content using an AI agent ✍️
-async function generateMarkdown(scenariosData) {
+// Function to generate Markdown content for a single scenario ✍️
+async function generateMarkdownForScenario(scenario, items) {
   try {
-    const markdownPrompt = `
-    Format the following positive and ideal AI scenario data as a Markdown document:
+    let markdownContent = "";
 
-    ${JSON.stringify(scenariosData)}
+    markdownContent += `## ${scenario.title}\n\n`;
+    markdownContent += `${scenario.description}\n\n`;
 
-    Make sure to use headings for scenarios and items, and clearly present the ETA, historical analogy, and stakeholder analysis for each item.
-    `;
+    // Iterate through each item within the scenario
+    for (const { item, eta, analogy, stakeholders } of items) {
+      markdownContent += `### ${item}\n\n`;
+      markdownContent += `**ETA:** ${eta.eta}\n\n`;
+      markdownContent += `**Historical Analogy:**\n\n`;
+      markdownContent += `- **Event:** ${analogy.event}\n`;
+      markdownContent += `- **Similarity:** ${analogy.similarity}\n`;
+      markdownContent += `- **Lesson:** ${analogy.lesson}\n\n`;
 
-    // Get the Markdown output from the AI agent (no schema needed here)
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: markdownPrompt },
-      ],
-    });
+      markdownContent += `**Stakeholders:**\n\n`;
+      for (const stakeholder of stakeholders) {
+        markdownContent += `- **${stakeholder.name}:** ${stakeholder.role} *[Provide a brief description of their role in this scenario here]*\n`;
+      }
+      markdownContent += "\n";
+    }
 
-    // Access and return the raw text content 
-    const markdownContent = completion.choices[0].message.content;
     return markdownContent;
   } catch (error) {
     console.error("Error generating Markdown from OpenAI:", error);
@@ -97,8 +99,8 @@ async function generateMarkdown(scenariosData) {
 // in a /logs directory
 async function saveToFile(content) {
   const timestamp = new Date().toISOString().replace(/:/g, '-');
-  const filename = `ai_positive_scenarios_${timestamp}.md`; 
-  const directory = './logs'; 
+  const filename = `ai_positive_scenarios_${timestamp}.md`;
+  const directory = './logs';
 
   // Create the directory if it doesn't exist
   if (!fs.existsSync(directory)) {
@@ -121,18 +123,20 @@ async function analyzeStakeholders(scenarioItem) {
 
     Consider governments, businesses, individuals, specific communities, or other relevant groups.
 
-    Format your response as a JSON array of stakeholder objects:
+    Format your response as a JSON object with an array of stakeholder objects:
 
-    [
-      {
-        "name": "Name or type of stakeholder",
-        "role": "Role of the stakeholder (e.g., Beneficiary, Regulator, Developer)"
-      },
-      // ... more stakeholders
-    ]
+    {
+      "stakeholders": [
+        {
+          "name": "Name or type of stakeholder",
+          "role": "Role of the stakeholder (e.g., Beneficiary, Regulator, Developer)"
+        },
+        // ... more stakeholders
+      ]
+    }
     `;
 
-    const stakeholders = await getStructuredOutput(stakeholderPrompt, StakeholdersSchema); // Use the updated schema
+    const stakeholders = await getStructuredOutput(stakeholderPrompt, StakeholdersSchema);
     return stakeholders.stakeholders; // Access the array from the response object
   } catch (error) {
     console.error("Error analyzing stakeholders:", error);
@@ -155,7 +159,7 @@ async function generateETA(item) {
     
     Be specific and provide a realistic timeframe whenever possible (e.g., "Within the next 5 years," "By the early 2030s," "Likely beyond 2050"). If the timeframe is highly uncertain, acknowledge the uncertainty and explain why.
     `;
-    const eta = await getStructuredOutput(etaPrompt, ETASchema); 
+    const eta = await getStructuredOutput(etaPrompt, ETASchema);
     return eta;
   } catch (error) {
     console.error("Error generating ETA:", error);
@@ -184,7 +188,7 @@ Focus on analogies that:
 - Highlight the importance of careful planning, ethical considerations, and societal adaptation.
 - Offer valuable lessons for navigating the challenges and opportunities of the AI scenario.
 `;
-    const analogy = await getStructuredOutput(analogyPrompt, AnalogySchema); 
+    const analogy = await getStructuredOutput(analogyPrompt, AnalogySchema);
     return analogy;
   } catch (error) {
     console.error("Error generating analogy:", error);
@@ -238,6 +242,9 @@ Each scenario object should include:
     for (const scenario of scenarios) {
       console.log("Scenario:", scenario);
 
+      // Array to store data for items within the current scenario
+      const scenarioItemsData = [];
+
       // Process each item (step) within the scenario 🔍
       for (const item of scenario.items) {
         // Generate ETA for the item ⏱️
@@ -254,19 +261,36 @@ Each scenario object should include:
         console.log("    Analogy:", analogy);
         console.log("    Stakeholders:", stakeholders);
 
-        // Add the data for the current scenario to the array 📝
-        allScenariosData.push({ scenario, eta, analogy, stakeholders });
+        // Add the data for the current item to the scenarioItemsData array
+        scenarioItemsData.push({ item, eta, analogy, stakeholders });
       }
+
+      // Add the scenario and its items data to the allScenariosData array
+      allScenariosData.push({ scenario, items: scenarioItemsData });
     }
 
-    // Generate Markdown content using the AI agent ✍️
-    const markdownContent = await generateMarkdown(allScenariosData);
+    let finalMarkdownContent = ""; // Initialize the final Markdown content
 
-    // Save the Markdown content to a file 💾
-    await saveToFile(markdownContent);
+    // Add the main header 
+    finalMarkdownContent += "# Positive Future Scenarios for AI\n\n";
+    finalMarkdownContent += "Five distinct scenarios illustrating how AI can transform humanity.\n\n";
+
+    // Process each scenario 🔄
+    for (const { scenario, items } of allScenariosData) {
+      console.log("Generating Markdown for scenario:", scenario.title); // Log the scenario being processed
+
+      // Generate Markdown for the current scenario
+      const scenarioMarkdown = await generateMarkdownForScenario(scenario, items);
+
+      // Append the scenario Markdown to the final Markdown content
+      finalMarkdownContent += scenarioMarkdown;
+    }
+
+    // Save the final Markdown content to a file 💾
+    await saveToFile(finalMarkdownContent);
 
   } catch (error) {
-    console.error("Error in main function:", error); 
+    console.error("Error in main function:", error);
   }
 }
 
