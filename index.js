@@ -3,9 +3,22 @@ import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
 import fs from 'fs';
+import express from 'express'; 
 
 // Load environment variables from .env file 🤫
 dotenv.config();
+
+// Add Express
+const app = express();
+const port = 3003; // You can choose any available port
+
+// Define allScenariosData as a global variable
+let allScenariosData = [];
+
+// API endpoint to serve scenario data
+app.get('/api/scenarios', (req, res) => {
+  res.json(allScenariosData);
+});
 
 // Initialize the OpenAI API client 🚀
 const openai = new OpenAI({
@@ -327,7 +340,7 @@ Each scenario object should include:
     const scenarios = Array.isArray(scenariosResult) ? scenariosResult : [scenariosResult];
 
     // Array to store data for all scenarios 📚
-    const allScenariosData = [];
+     allScenariosData = [];
 
     // Process each scenario 🔄
     for (const scenario of scenarios) {
@@ -394,4 +407,16 @@ Each scenario object should include:
 }
 
 // Run the main function (start the show!) 🎬
-main();
+// main();
+
+// Start the server after the main function completes using an async IIFE
+(async () => {
+  try {
+    await main(); // Wait for the main function to complete
+    app.listen(port, () => {
+      console.log(`Server listening at http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error("Error starting the server:", error);
+  }
+})();
