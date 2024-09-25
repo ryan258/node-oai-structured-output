@@ -45,6 +45,38 @@ const StakeholdersSchema = z.object({
   stakeholders: z.array(StakeholderSchema),
 });
 
+// Schema for Innovation (from The Innovator agent) 💡
+const InnovationSchema = z.object({
+  idea: z.string(),
+  potential: z.string(),
+  challenges: z.string(),
+});
+
+// Function to generate innovative ideas for a scenario item 💡
+async function generateInnovation(scenarioItem) {
+  try {
+    const innovationPrompt = `
+    Consider this step towards a positive AI scenario: "${scenarioItem}"
+
+    Generate a "moonshot" idea or innovation that could significantly enhance or accelerate this step, pushing the boundaries of what's currently possible.
+
+    Format your response as a JSON object:
+
+    {
+      "idea": "Description of the innovative idea",
+      "potential": "Explanation of the potential positive impact of this innovation",
+      "challenges": "Potential challenges or obstacles to realizing this innovation"
+    }
+    `;
+
+    const innovation = await getStructuredOutput(innovationPrompt, InnovationSchema);
+    return innovation;
+  } catch (error) {
+    console.error("Error generating innovation:", error);
+    throw error;
+  }
+}
+
 // Function to get structured output from the OpenAI API 🤖
 // It can optionally use a Zod schema for validation and parsing
 async function getStructuredOutput(prompt, schema = null) {
@@ -65,7 +97,7 @@ async function getStructuredOutput(prompt, schema = null) {
   }
 }
 
-// Function to generate Markdown content for a single scenario ✍️
+// Function to generate Markdown content for a single scenario ✍️ (Updated)
 async function generateMarkdownForScenario(scenario, items) {
   try {
     let markdownContent = "";
@@ -74,7 +106,7 @@ async function generateMarkdownForScenario(scenario, items) {
     markdownContent += `${scenario.description}\n\n`;
 
     // Iterate through each item within the scenario
-    for (const { item, eta, analogy, stakeholders } of items) {
+    for (const { item, eta, analogy, stakeholders, innovation } of items) {
       markdownContent += `### ${item}\n\n`;
       markdownContent += `**ETA:** ${eta.eta}\n\n`;
       markdownContent += `**Historical Analogy:**\n\n`;
@@ -84,9 +116,15 @@ async function generateMarkdownForScenario(scenario, items) {
 
       markdownContent += `**Stakeholders:**\n\n`;
       for (const stakeholder of stakeholders) {
-        markdownContent += `- **${stakeholder.name}:** ${stakeholder.role} - ${stakeholder.description}\n`; // Use stakeholder.description
+        markdownContent += `- **${stakeholder.name}:** ${stakeholder.role} - ${stakeholder.description}\n`;
       }
       markdownContent += "\n";
+
+      // Add Innovation section 💡
+      markdownContent += `**Innovation - Moonshot Idea:**\n\n`;
+      markdownContent += `${innovation.idea}\n\n`;
+      markdownContent += `**Potential Impact:** ${innovation.potential}\n\n`;
+      markdownContent += `**Challenges:** ${innovation.challenges}\n\n`;
     }
 
     return markdownContent;
@@ -205,7 +243,7 @@ async function main() {
     // Prompt for generating positive AI scenarios 💭
     const scenariosPrompt = `Imagine a future where AI is used to create a more equitable, sustainable, and fulfilling world for everyone. 
 
-Describe 5 detailed and distinct scenarios illustrating how AI could positively advance humanity in this ideal future. 
+Describe 2 detailed and distinct scenarios illustrating how AI could positively advance humanity in this ideal future. 
 
 Ensure that each scenario explores a unique aspect of AI's positive potential and does not overlap significantly with other scenarios. Consider a wide range of domains where AI could have a transformative impact, such as:
 
@@ -258,13 +296,17 @@ Each scenario object should include:
         // Stakeholder Analysis 👥
         const stakeholders = await analyzeStakeholders(item);
 
+        // Generate Innovation 💡
+        const innovation = await generateInnovation(item);
+        
         console.log("  Item:", item);
         console.log("    ETA:", eta);
         console.log("    Analogy:", analogy);
         console.log("    Stakeholders:", stakeholders);
-
+        console.log("    Innovation:", innovation);
+        
         // Add the data for the current item to the scenarioItemsData array
-        scenarioItemsData.push({ item, eta, analogy, stakeholders });
+        scenarioItemsData.push({ item, eta, analogy, stakeholders, innovation });
       }
 
       // Add the scenario and its items data to the allScenariosData array
@@ -275,7 +317,7 @@ Each scenario object should include:
 
     // Add the main header 
     finalMarkdownContent += "# Positive Future Scenarios for AI\n\n";
-    finalMarkdownContent += "Five distinct scenarios illustrating how AI can transform humanity.\n\n";
+    finalMarkdownContent += "TWO distinct scenarios illustrating how AI can transform humanity.\n\n";
 
     // Process each scenario 🔄
     for (const { scenario, items } of allScenariosData) {
