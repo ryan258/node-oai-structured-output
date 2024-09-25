@@ -52,6 +52,46 @@ const InnovationSchema = z.object({
   challenges: z.string(),
 });
 
+// Schema for Future Timelines (from The Futurist agent) 🔮
+const FutureTimelinesSchema = z.object({
+  optimistic: z.string(),
+  pessimistic: z.string(),
+  realistic: z.string(),
+  wildcard: z.string().optional(), // Optional wildcard event
+});
+
+// Function to generate future timelines for a scenario item 🔮
+async function generateFutureTimelines(scenarioItem) {
+  try {
+    const timelinesPrompt = `
+    Consider this step towards a positive AI scenario: "${scenarioItem}"
+
+    Generate three potential future timelines for this step:
+
+    * **Optimistic:** A timeline where advancements and adoption happen quickly and smoothly.
+    * **Pessimistic:** A timeline where progress is slow, and challenges arise.
+    * **Realistic:** A balanced timeline considering both potential advancements and likely obstacles.
+
+    Optionally, include a "wildcard" event or breakthrough that could significantly alter any of these timelines.
+
+    Format your response as a JSON object:
+
+    {
+      "optimistic": "Description of the optimistic timeline",
+      "pessimistic": "Description of the pessimistic timeline",
+      "realistic": "Description of the realistic timeline",
+      "wildcard": "Description of a potential wildcard event (optional)"
+    }
+    `;
+
+    const timelines = await getStructuredOutput(timelinesPrompt, FutureTimelinesSchema);
+    return timelines;
+  } catch (error) {
+    console.error("Error generating future timelines:", error);
+    throw error;
+  }
+}
+
 // Function to generate innovative ideas for a scenario item 💡
 async function generateInnovation(scenarioItem) {
   try {
@@ -97,7 +137,7 @@ async function getStructuredOutput(prompt, schema = null) {
   }
 }
 
-// Function to generate Markdown content for a single scenario ✍️ (Updated)
+// Function to generate Markdown content for a single scenario ✍️
 async function generateMarkdownForScenario(scenario, items) {
   try {
     let markdownContent = "";
@@ -106,9 +146,20 @@ async function generateMarkdownForScenario(scenario, items) {
     markdownContent += `${scenario.description}\n\n`;
 
     // Iterate through each item within the scenario
-    for (const { item, eta, analogy, stakeholders, innovation } of items) {
+    for (const { item, eta, analogy, stakeholders, innovation, futureTimelines } of items) {
       markdownContent += `### ${item}\n\n`;
       markdownContent += `**ETA:** ${eta.eta}\n\n`;
+
+      // Add Future Timelines section 🔮
+      markdownContent += `**Future Timelines:**\n\n`;
+      markdownContent += `- **Optimistic:** ${futureTimelines.optimistic}\n`;
+      markdownContent += `- **Pessimistic:** ${futureTimelines.pessimistic}\n`;
+      markdownContent += `- **Realistic:** ${futureTimelines.realistic}\n`;
+      if (futureTimelines.wildcard) {
+        markdownContent += `- **Wildcard Event:** ${futureTimelines.wildcard}\n`;
+      }
+      markdownContent += "\n";
+
       markdownContent += `**Historical Analogy:**\n\n`;
       markdownContent += `- **Event:** ${analogy.event}\n`;
       markdownContent += `- **Similarity:** ${analogy.similarity}\n`;
@@ -298,15 +349,19 @@ Each scenario object should include:
 
         // Generate Innovation 💡
         const innovation = await generateInnovation(item);
+
+        // Generate Future Timelines 🔮
+        const futureTimelines = await generateFutureTimelines(item);
         
         console.log("  Item:", item);
         console.log("    ETA:", eta);
+        console.log("    Future Timelines:", futureTimelines);
         console.log("    Analogy:", analogy);
         console.log("    Stakeholders:", stakeholders);
         console.log("    Innovation:", innovation);
         
         // Add the data for the current item to the scenarioItemsData array
-        scenarioItemsData.push({ item, eta, analogy, stakeholders, innovation });
+        scenarioItemsData.push({ item, eta, analogy, stakeholders, innovation, futureTimelines });
       }
 
       // Add the scenario and its items data to the allScenariosData array
