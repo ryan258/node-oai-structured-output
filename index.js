@@ -3,7 +3,8 @@ import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
 import fs from 'fs';
-import express from 'express'; 
+import express from 'express';
+import path from 'path';
 
 // Load environment variables from .env file 🤫
 dotenv.config();
@@ -18,6 +19,11 @@ let allScenariosData = [];
 // API endpoint to serve scenario data
 app.get('/api/scenarios', (req, res) => {
   res.json(allScenariosData);
+});
+
+// Serve the index.html file for the root route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(path.resolve(), 'index.html'));
 });
 
 // Initialize the OpenAI API client 🚀
