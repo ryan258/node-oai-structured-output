@@ -120,7 +120,7 @@ Each scenario object should include:
           item,
           eta,
           analogy,
-          stakeholders,
+          stakeholders: stakeholders.stakeholders,
           innovation,
           futureTimelines,
         });
