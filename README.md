@@ -1,6 +1,6 @@
 # AI Positive Future Scenarios Generator
 
-This project uses the OpenAI API (specifically the gpt-4-mini model) to generate positive and ideal future scenarios where AI is used to benefit humanity. It then analyzes these scenarios, providing estimated timelines (ETAs), historical analogies, stakeholder analyses, innovative ideas, and potential future timelines for each step within the scenarios. The output is presented in an interactive and visually engaging dashboard built with Vue.js and Tailwind CSS.
+This project uses the OpenAI API (specifically the gpt-4o-mini model) to generate positive and ideal future scenarios where AI is used to benefit humanity. It then analyzes these scenarios, providing estimated timelines (ETAs), historical analogies, stakeholder analyses, innovative ideas, and potential future timelines for each step within the scenarios. The output is presented in an interactive and visually engaging dashboard built with Vue.js and Tailwind CSS.
 
 ## Features
 
@@ -44,15 +44,98 @@ This project uses the OpenAI API (specifically the gpt-4-mini model) to generate
    ```bash
    node index.js
    ```
-   This will start the Node.js server and the Vue.js app.
+   **IMPORTANT:**
+   - The script will prompt you: `Enter a scenario prompt (or press Enter for AI-generated topics):`
+   - **Type your prompt or just press Enter.**
+   - The server will do some work. When you see `Server listening at http://localhost:4000`, **then** you can visit the web dashboard.
 5. **Accessing the Dashboard:**
-   Open your web browser and go to `http://localhost:3003/` (or the port you specified in your `index.js` file).
+   Open your web browser and go to `http://localhost:4000/` (or the port you specified in your `.env` file).
+
+## How the Server Works
+
+- The web dashboard is **not available** until you see `Server listening at ...` in your terminal.
+- If you visit the site before that, you'll get a connection error.
+- After the server is listening, you can refresh your browser to see the dashboard.
 
 ## Project Structure
 
 - `index.js`: The main Node.js script that handles scenario generation, AI agent workflows, and the Express server.
 - `index.html`: The Vue.js app that fetches data from the server and renders the interactive dashboard.
+- `.env`: Environment variables file. You can set `OPENAI_MODEL` (e.g. `gpt-4o-mini`) and `PORT` here to control the model and port without changing code.
 - `logs/`: A directory where the generated Markdown files are saved (optional).
+- **`zod_kids_example.js`**: A simple Zod lesson for kids. Checks if a pet has a name and age.
+- **`zod_kids_openai_example.js`**: Lesson 2 for kids! Asks OpenAI for a fun animal fact and uses Zod to check it. Now includes animal, fact, habitat, diet, and lifespan fields.
+
+## Using Zod for Structured Outputs
+
+This project uses [Zod](https://zod.dev/) to define and validate schemas for structured outputs, especially for AI-generated content. Zod ensures that data matches the expected structure and provides clear error messages if validation fails.
+
+### Minimal Example
+
+You can try this standalone script to see Zod in action:
+
+```js
+// zod_example.js
+import { z } from 'zod';
+
+// Define a schema
+default const UserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string().email(),
+  isActive: z.boolean().default(true),
+});
+
+// Example data
+const exampleData = {
+  id: 1,
+  name: 'Alice',
+  email: 'alice@example.com',
+};
+
+const invalidData = {
+  id: 'not-a-number',
+  name: 'Bob',
+  email: 'not-an-email',
+};
+
+// Validate data
+try {
+  const user = UserSchema.parse(exampleData);
+  console.log('Valid user:', user);
+} catch (e) {
+  console.error('Validation failed for exampleData:', e.errors);
+}
+
+try {
+  const user = UserSchema.parse(invalidData);
+  console.log('Valid user:', user);
+} catch (e) {
+  console.error('Validation failed for invalidData:', e.errors);
+}
+
+// Safe parsing (does not throw)
+const result = UserSchema.safeParse(exampleData);
+if (result.success) {
+  console.log('Safe parse succeeded:', result.data);
+} else {
+  console.error('Safe parse failed:', result.error.errors);
+}
+```
+
+To run this example:
+
+```bash
+node zod_example.js
+```
+
+### Project Usage
+
+In this project, Zod schemas are used to validate:
+- AI scenario outputs
+- Timelines, analogies, stakeholder analyses, and more
+
+See `index.js` for advanced usage, including parsing OpenAI API responses with Zod schemas.
 
 ## Contributing
 
