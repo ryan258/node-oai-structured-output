@@ -44,7 +44,7 @@ async function main() {
     // Modify the scenarios prompt to include the selected topic
     const scenariosPrompt = `Imagine a future where AI is used to create a more equitable, sustainable, and fulfilling world for everyone, focusing on the following topic: "${selectedTopic}" 
 
-Describe 2 detailed and distinct scenarios illustrating how AI could positively advance humanity in this ideal future, related to the given topic. 
+Describe 3-5 detailed and distinct scenarios illustrating how AI could positively advance humanity in this ideal future, related to the given topic. 
 
 Ensure that each scenario explores a unique aspect of AI's positive potential and does not overlap significantly with other scenarios. Consider a wide range of domains where AI could have a transformative impact, such as:
 
