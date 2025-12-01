@@ -1,0 +1,76 @@
+import http from 'http';
+
+const PORT = 4000;
+const BASE_URL = `http://localhost:${PORT}`;
+
+function makeRequest(path, options = {}) {
+    return new Promise((resolve, reject) => {
+        const req = http.request(`${BASE_URL}${path}`, options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => data += chunk);
+            res.on('end', () => resolve({ statusCode: res.statusCode, headers: res.headers, body: data }));
+        });
+        req.on('error', reject);
+        if (options.body) {
+            req.write(options.body);
+        }
+        req.end();
+    });
+}
+
+async function test() {
+    console.log('Testing Security Features...');
+
+    try {
+        // 1. Test Server Availability (Non-blocking startup)
+        console.log('1. Testing Server Availability...');
+        try {
+            const res = await makeRequest('/');
+            console.log(`   Status: ${res.statusCode} (Expected 200)`);
+            if (res.statusCode === 200) console.log('   ✅ Server is up and responsive');
+            else console.log('   ❌ Server failed to respond correctly');
+        } catch (e) {
+            console.log('   ❌ Server not reachable. Is it running?');
+        }
+
+        // 2. Test Security Headers (Helmet)
+        console.log('\n2. Testing Security Headers...');
+        const resHeaders = await makeRequest('/');
+        if (resHeaders.headers['x-dns-prefetch-control']) {
+            console.log('   ✅ Helmet headers detected (x-dns-prefetch-control)');
+        } else {
+            console.log('   ❌ Helmet headers missing');
+        }
+
+        // 3. Test Rate Limiting
+        console.log('\n3. Testing Rate Limiting (Checking headers)...');
+        const resRate = await makeRequest('/api/scenarios');
+        if (resRate.headers['x-ratelimit-limit']) {
+            console.log(`   ✅ Rate limit headers detected (Limit: ${resRate.headers['x-ratelimit-limit']})`);
+        } else {
+            console.log('   ❌ Rate limit headers missing');
+        }
+
+        // 4. Test Auth on Protected Route
+        console.log('\n4. Testing Authentication on /api/generate...');
+
+        // No Key
+        const resNoKey = await makeRequest('/api/generate', { method: 'POST' });
+        console.log(`   No Key: Status ${resNoKey.statusCode} (Expected 401)`);
+        if (resNoKey.statusCode !== 401) console.log('   Body:', resNoKey.body);
+
+        // With Key (Mock)
+        const resWithKey = await makeRequest('/api/generate', {
+            method: 'POST',
+            headers: { 'x-admin-key': 'secret123', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic: 'Test Topic' })
+        });
+        console.log(`   With Key: Status ${resWithKey.statusCode}`);
+        if (resWithKey.statusCode !== 200) console.log('   Body:', resWithKey.body);
+
+    } catch (error) {
+        console.error('Test failed:', error);
+    }
+}
+
+test();

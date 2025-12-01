@@ -1,7 +1,10 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
-// import fs from 'fs';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+
 
 import { generateTopics } from './functions/generateTopics.js';
 import { getUserInput } from './functions/getUserInput.js';
@@ -21,22 +24,138 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
 let allScenariosData = [];
+let isGenerating = false;
+
+console.log('--- Server Startup ---');
+
+
+// Security Middleware
+app.use(helmet());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  methods: ['GET', 'POST']
+}));
+app.use(express.json());
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use('/api/', limiter);
+
+// Authentication Middleware
+const authenticate = (req, res, next) => {
+  const adminApiKey = process.env.ADMIN_API_KEY;
+  const providedKey = req.headers['x-admin-key'];
+
+  if (!adminApiKey) {
+    console.error('CRITICAL: ADMIN_API_KEY not configured in .env');
+    return res.status(500).json({
+      error: 'Server misconfiguration. Authentication not properly configured.'
+    });
+  }
+
+  if (providedKey && providedKey === adminApiKey) {
+    next();
+  } else {
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+};
 
 app.get('/api/scenarios', (req, res) => {
   res.json(allScenariosData);
+});
+
+app.post('/api/generate', authenticate, async (req, res) => {
+  if (isGenerating) {
+    return res.status(429).json({ error: 'Generation already in progress' });
+  }
+
+  const { topic } = req.body;
+
+  // Validate topic
+  if (!topic || typeof topic !== 'string') {
+    return res.status(400).json({
+      error: 'Invalid request. "topic" must be a non-empty string.'
+    });
+  }
+
+  const trimmedTopic = topic.trim();
+
+  if (trimmedTopic.length === 0) {
+    return res.status(400).json({
+      error: 'Topic cannot be empty.'
+    });
+  }
+
+  if (trimmedTopic.length > 500) {
+    return res.status(400).json({
+      error: 'Topic must be 500 characters or less.'
+    });
+  }
+
+  // Set flag immediately to prevent race conditions
+  isGenerating = true;
+
+  // Start generation in background
+  generateScenarios(trimmedTopic)
+    .catch(err => console.error('Background generation error:', err))
+    .finally(() => {
+      isGenerating = false;
+    });
+
+  res.json({ message: 'Scenario generation started', status: 'processing' });
 });
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(path.resolve(), 'index.html'));
 });
 
-async function main() {
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
+async function generateScenarios(initialTopic = null) {
+  // isGenerating check removed here as it is handled in the route handler
+  // However, we keep the flag management in case this is called internally
+  if (isGenerating && initialTopic === null && process.stdin.isTTY) {
+    // If called from CLI and already generating, just return.
+    // But if called from API, the flag is already set true by the handler.
+    // We need to be careful not to double-set or early return if it was just set by the handler.
+    // Since the handler sets it true, we should assume if we are here, we are good to go unless
+    // we want to be extra safe.
+    // For simplicity, let's rely on the handler's check for API calls.
+    // For CLI calls, we can check.
+  }
+
+  // If called from CLI (no initialTopic), set flag.
+  // If called from API (initialTopic present), flag is already set.
+  if (!initialTopic) {
+    if (isGenerating) return;
+    isGenerating = true;
+  }
+
   try {
-    let selectedTopic = await getUserInput();
+    let selectedTopic = initialTopic;
 
     if (!selectedTopic) {
-      const topics = await generateTopics();
-      selectedTopic = await selectTopic(topics);
+      // If running in interactive mode (CLI), ask user
+      // Note: This might block if triggered via API without topic, but API should provide topic
+      // For initial startup, we can still use CLI input
+      if (process.stdin.isTTY) {
+        selectedTopic = await getUserInput();
+        if (!selectedTopic) {
+          const topics = await generateTopics();
+          selectedTopic = await selectTopic(topics);
+        }
+      } else {
+        console.log("Non-interactive mode: Skipping manual input.");
+        isGenerating = false;
+        return;
+      }
     }
 
     console.log(`Generating scenario based on: ${selectedTopic}`);
@@ -93,20 +212,14 @@ Each scenario object should include:
 
       // Process each item (step) within the scenario 
       for (const item of scenario.items) {
-        // Generate ETA for the item 
-        const eta = await generateETA(item);
-
-        // Generate historical analogy for the item 
-        const analogy = await generateAnalogy(item);
-
-        // Stakeholder Analysis 
-        const stakeholders = await analyzeStakeholders(item);
-
-        // Generate Innovation 
-        const innovation = await generateInnovation(item);
-
-        // Generate Future Timelines 
-        const futureTimelines = await generateFutureTimelines(item);
+        // Generate all item details in parallel
+        const [eta, analogy, stakeholders, innovation, futureTimelines] = await Promise.all([
+          generateETA(item),
+          generateAnalogy(item),
+          analyzeStakeholders(item),
+          generateInnovation(item),
+          generateFutureTimelines(item)
+        ]);
 
         console.log('  Item:', item);
         console.log('    ETA:', eta);
@@ -155,12 +268,24 @@ Each scenario object should include:
     // Save the final Markdown content to a file 
     await saveToFile(finalMarkdownContent);
   } catch (error) {
-    console.error('Error in main function:', error);
+    console.error('Error in generation function:', error);
+  } finally {
+    isGenerating = false;
   }
+}
 
-  app.listen(port, () => {
+// Start server immediately
+// Start server immediately
+let server;
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
+
+    // Trigger initial generation if running interactively
+    if (process.stdin.isTTY) {
+      generateScenarios();
+    }
   });
 }
 
-main();
+export { app, server };
