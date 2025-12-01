@@ -16,14 +16,33 @@ const FactSchema = z.object({
   lifespan: z.string(),
 });
 
-// 2. Set up OpenAI
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// 2. Set up the AI client (works with OpenAI or OpenRouter)
+const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+const baseURL = process.env.USE_OPENROUTER === 'true'
+  ? 'https://openrouter.ai/api/v1'
+  : undefined;
+
+const openai = new OpenAI({
+  apiKey,
+  baseURL,
+  defaultHeaders: baseURL ? {
+    'HTTP-Referer': process.env.YOUR_SITE_URL || 'http://localhost:4000',
+    'X-Title': process.env.YOUR_SITE_NAME || 'Zod Kids Example',
+  } : undefined
+});
 
 async function askOpenAIForAnimalFact(animal) {
-  // 3. Ask OpenAI for a fact about an animal
+  // 3. Ask the AI for a fact about an animal
   const prompt = `Tell me a fun fact about a ${animal}. Format your answer as JSON like this: { "animal": "animal name", "fact": "fun fact about the animal", "habitat": "where it lives", "diet": "what it eats", "lifespan": "how long it lives" }`;
+
+  // Get the appropriate model based on provider
+  const defaultModel = process.env.USE_OPENROUTER === 'true'
+    ? 'openai/gpt-4o-mini'
+    : 'gpt-4o-mini';
+  const model = process.env.AI_MODEL || process.env.OPENAI_MODEL || defaultModel;
+
   const response = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    model,
     messages: [
       { role: 'system', content: 'You are a helpful assistant.' },
       { role: 'user', content: prompt },
@@ -49,7 +68,7 @@ async function askOpenAIForAnimalFact(animal) {
   // 5. Use Zod to check the answer!
   const result = FactSchema.safeParse(data);
   if (result.success) {
-    console.log('Yay! OpenAI gave us a good fact:', result.data);
+    console.log('Yay! The AI gave us a good fact:', result.data);
   } else {
     console.error('Oops! The fact was not in the right format:', result.error.errors);
   }

@@ -2,7 +2,7 @@ export async function generateMarkdownForScenario(scenario, items) {
   let markdownContent = '';
   markdownContent += `## ${scenario.title}\n\n`;
   markdownContent += `${scenario.description}\n\n`;
-  for (const { item, eta, analogy, stakeholders, innovation, timelines } of items) {
+  for (const { item, eta, analogy, stakeholders, innovation, futureTimelines } of items) {
     markdownContent += `### Step: ${item}\n`;
     if (eta) markdownContent += `- **ETA:** ${eta.eta}\n`;
     if (analogy) markdownContent += `- **Historical Analogy:** ${analogy.event} (${analogy.similarity})\n  - Lesson: ${analogy.lesson}\n`;
@@ -15,12 +15,12 @@ export async function generateMarkdownForScenario(scenario, items) {
     if (innovation) {
       markdownContent += `- **Innovation:** ${innovation.idea}\n  - Potential: ${innovation.potential}\n  - Challenges: ${innovation.challenges}\n`;
     }
-    if (timelines) {
+    if (futureTimelines) {
       markdownContent += `- **Future Timelines:**\n`;
-      markdownContent += `  - Optimistic: ${timelines.optimistic}\n`;
-      markdownContent += `  - Pessimistic: ${timelines.pessimistic}\n`;
-      markdownContent += `  - Realistic: ${timelines.realistic}\n`;
-      if (timelines.wildcard) markdownContent += `  - Wildcard: ${timelines.wildcard}\n`;
+      markdownContent += `  - Optimistic: ${futureTimelines.optimistic}\n`;
+      markdownContent += `  - Pessimistic: ${futureTimelines.pessimistic}\n`;
+      markdownContent += `  - Realistic: ${futureTimelines.realistic}\n`;
+      if (futureTimelines.wildcard) markdownContent += `  - Wildcard: ${futureTimelines.wildcard}\n`;
     }
     markdownContent += '\n';
   }

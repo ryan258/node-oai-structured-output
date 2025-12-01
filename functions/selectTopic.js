@@ -9,16 +9,18 @@ export async function selectTopic(topics) {
   topics.forEach((topic, idx) => {
     console.log(`${idx + 1}. ${topic}`);
   });
-  return new Promise((resolve) => {
+  const input = await new Promise((resolve) => {
     rl.question('Enter the number of your choice: ', (input) => {
       rl.close();
-      const idx = parseInt(input.trim(), 10) - 1;
-      if (idx >= 0 && idx < topics.length) {
-        resolve(topics[idx]);
-      } else {
-        console.log('Invalid choice. Please try again.');
-        resolve(selectTopic(topics));
-      }
+      resolve(input);
     });
   });
+
+  const idx = parseInt(input.trim(), 10) - 1;
+  if (idx >= 0 && idx < topics.length) {
+    return topics[idx];
+  } else {
+    console.log('Invalid choice. Please try again.');
+    return await selectTopic(topics);
+  }
 }

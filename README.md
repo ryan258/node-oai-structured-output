@@ -1,6 +1,10 @@
 # AI Positive Future Scenarios Generator
 
-This project uses the OpenAI API (specifically the gpt-4o-mini model) to generate positive and ideal future scenarios where AI is used to benefit humanity. It then analyzes these scenarios, providing estimated timelines (ETAs), historical analogies, stakeholder analyses, innovative ideas, and potential future timelines for each step within the scenarios. The output is presented in an interactive and visually engaging dashboard built with Vue.js and Tailwind CSS.
+This project uses AI APIs (OpenRouter or OpenAI) to generate positive and ideal future scenarios where AI is used to benefit humanity. It then analyzes these scenarios, providing estimated timelines (ETAs), historical analogies, stakeholder analyses, innovative ideas, and potential future timelines for each step within the scenarios. The output is presented in an interactive and visually engaging dashboard built with Vue.js and Tailwind CSS.
+
+**NEW:** Now supports [OpenRouter](https://openrouter.ai/) for access to multiple AI models (GPT-4, Claude, Llama, and more) with a single API!
+
+> 📖 **See [OPENROUTER_SETUP.md](./OPENROUTER_SETUP.md) for detailed setup instructions, model recommendations, and troubleshooting.**
 
 ## Features
 
@@ -28,18 +32,37 @@ This project uses the OpenAI API (specifically the gpt-4o-mini model) to generat
 
 1. **Prerequisites:**
    - Node.js and npm installed.
-   - An OpenAI API key (set as the `OPENAI_API_KEY` environment variable). You can get an API key from [OpenAI's website](https://platform.openai.com/account/api-keys).
+   - An API key from either:
+     - [OpenRouter](https://openrouter.ai/keys) (recommended - access to multiple models)
+     - [OpenAI](https://platform.openai.com/account/api-keys) (direct access)
+
 2. **Installation:**
    ```bash
    git clone https://github.com/ryan258/node-oai-structured-output.git
-   cd your-repo-name
+   cd node-oai-structured-output
    npm install
    ```
+
 3. **Configuration:**
-   - Create a `.env` file in the project's root directory and add your OpenAI API key:
+   Create a `.env` file in the project's root directory:
+
+   **Option A: Using OpenRouter (Recommended)**
+   ```bash
+   USE_OPENROUTER=true
+   OPENROUTER_API_KEY=your_openrouter_api_key_here
+   AI_MODEL=openai/gpt-4o-mini
+   PORT=4000
    ```
+
+   **Option B: Using OpenAI Directly**
+   ```bash
+   USE_OPENROUTER=false
    OPENAI_API_KEY=your_openai_api_key_here
+   AI_MODEL=gpt-4o-mini
+   PORT=4000
    ```
+
+   See `.env.example` for all available configuration options.
 4. **Running the Project:**
    ```bash
    node index.js
@@ -48,8 +71,32 @@ This project uses the OpenAI API (specifically the gpt-4o-mini model) to generat
    - The script will prompt you: `Enter a scenario prompt (or press Enter for AI-generated topics):`
    - **Type your prompt or just press Enter.**
    - The server will do some work. When you see `Server listening at http://localhost:4000`, **then** you can visit the web dashboard.
+
 5. **Accessing the Dashboard:**
    Open your web browser and go to `http://localhost:4000/` (or the port you specified in your `.env` file).
+
+## Why OpenRouter?
+
+[OpenRouter](https://openrouter.ai/) provides several advantages:
+
+- **Access to Multiple Models:** Use GPT-4, Claude, Llama, Gemini, and more with a single API key
+- **Cost Optimization:** Choose the best model for your budget (from free to premium)
+- **Reliability:** Automatic fallback if a model is unavailable
+- **Transparency:** See exactly what you're paying for each request
+- **Rate Limit Management:** Better handling of rate limits across providers
+
+### Available Models via OpenRouter
+
+Popular models you can use (set via `AI_MODEL` in `.env`):
+
+- `openai/gpt-4o-mini` - Fast and affordable (recommended default)
+- `openai/gpt-4o` - Most capable GPT-4 model
+- `anthropic/claude-3-sonnet` - Anthropic's balanced model
+- `anthropic/claude-3-opus` - Most capable Claude model
+- `meta-llama/llama-3-70b-instruct` - Open source alternative
+- `google/gemini-pro` - Google's AI model
+
+See the full list at [OpenRouter Models](https://openrouter.ai/models).
 
 ## How the Server Works
 
@@ -61,10 +108,15 @@ This project uses the OpenAI API (specifically the gpt-4o-mini model) to generat
 
 - `index.js`: The main Node.js script that handles scenario generation, AI agent workflows, and the Express server.
 - `index.html`: The Vue.js app that fetches data from the server and renders the interactive dashboard.
-- `.env`: Environment variables file. You can set `OPENAI_MODEL` (e.g. `gpt-4o-mini`) and `PORT` here to control the model and port without changing code.
+- `functions/`: Modularized logic for scenario generation and AI operations
+  - `openaiClient.js`: Configures the AI client (OpenRouter or OpenAI)
+  - `getStructuredOutput.js`: Core function for getting structured responses from AI
+  - `schemas.js`: Zod schemas for validation
+  - Other helper functions for specific AI tasks
+- `.env`: Environment variables file. Configure `AI_MODEL`, `PORT`, and API keys here.
 - `logs/`: A directory where the generated Markdown files are saved (optional).
 - **`zod_kids_example.js`**: A simple Zod lesson for kids. Checks if a pet has a name and age.
-- **`zod_kids_openai_example.js`**: Lesson 2 for kids! Asks OpenAI for a fun animal fact and uses Zod to check it. Now includes animal, fact, habitat, diet, and lifespan fields.
+- **`zod_kids_openai_example.js`**: Lesson 2 for kids! Asks AI for a fun animal fact and uses Zod to check it.
 
 ## Using Zod for Structured Outputs
 
@@ -79,7 +131,7 @@ You can try this standalone script to see Zod in action:
 import { z } from 'zod';
 
 // Define a schema
-default const UserSchema = z.object({
+const UserSchema = z.object({
   id: z.number(),
   name: z.string(),
   email: z.string().email(),

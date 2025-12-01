@@ -19,7 +19,7 @@ import { generateAnalogy } from './functions/generateAnalogy.js';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3003;
+const port = process.env.PORT || 4000;
 let allScenariosData = [];
 
 app.get('/api/scenarios', (req, res) => {
@@ -136,7 +136,7 @@ Each scenario object should include:
     finalMarkdownContent += '# Positive Future Scenarios for AI\n\n';
     finalMarkdownContent += `Based on the topic: "${selectedTopic}"\n\n`;
     finalMarkdownContent +=
-      'TWO distinct scenarios illustrating how AI can transform humanity.\n\n';
+      `${scenarios.length} distinct scenarios illustrating how AI can transform humanity.\n\n`;
 
     // Process each scenario 
     for (const { scenario, items } of allScenariosData) {
