@@ -1,6 +1,8 @@
 # 🌟 Happy Path Guide
 
-This guide outlines the ideal workflows for using the **AI Positive Future Scenarios Generator**. Follow these steps to ensure a smooth experience.
+This guide outlines the ideal workflows for using the **AI Positive Future Scenarios Generator**. This is a personal project designed to run locally on your machine.
+
+Follow these steps to ensure a smooth experience.
 
 ## 📋 Prerequisites
 

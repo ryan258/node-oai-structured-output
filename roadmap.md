@@ -4,12 +4,12 @@ Personal project tracking for AI Scenarios Generator.
 
 ## Progress Summary
 
-**Last Updated:** December 1, 2025
+**Last Updated:** December 2, 2025
 
 ### Current Status
-- **Completed:** 8 tasks ✅
+- **Completed:** 9 tasks ✅
 - **In Progress:** 0 tasks 🔄
-- **Backlog:** 31 tasks 📋
+- **Backlog:** 30 tasks 📋
 - **Total Tracked:** 39
 
 ### Recent Wins
@@ -44,6 +44,9 @@ Personal project tracking for AI Scenarios Generator.
 ### User Experience (1/1 Fixed)
 12. ✅ Frontend error handling
 
+### API Features (1/1 Complete)
+13. ✅ POST `/api/generate` endpoint for triggering scenarios
+
 ---
 
 ## Active Backlog 📋
@@ -59,10 +62,9 @@ Personal project tracking for AI Scenarios Generator.
 #### Error Handling
 - [ ] Graceful degradation when generation fails
 - [ ] Consistent error handling pattern across functions
-- [ ] Status endpoint for generation progress
 
 #### Features
-- [ ] POST `/api/generate` endpoint for new scenarios
+- [ ] Status endpoint for checking generation progress (`/api/status`)
 - [ ] WebSocket or SSE for real-time progress updates
 
 ### Medium Priority
@@ -114,9 +116,9 @@ Personal project tracking for AI Scenarios Generator.
 - [ ] Error handling patterns
 - [ ] Code style tools
 
-### Phase 3: Features (Soon)
-- [ ] Generation API endpoint
-- [ ] Progress tracking
+### Phase 3: Features (In Progress)
+- [x] Generation API endpoint
+- [ ] Progress tracking endpoint
 - [ ] Caching layer
 - [ ] Database persistence
 

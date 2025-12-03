@@ -2,6 +2,8 @@
 
 A personal project that uses AI APIs (OpenRouter or OpenAI) to generate optimistic future scenarios exploring how AI could benefit humanity. The system analyzes each scenario with estimated timelines, historical analogies, stakeholder analysis, and innovation opportunities, all presented in an interactive Vue.js dashboard.
 
+**Note:** This is a personal project designed to run locally. It's been a great learning experience for structured AI outputs, async patterns, security best practices, and testing ESM modules.
+
 **Features OpenRouter integration** for access to 100+ AI models (GPT-4, Claude, Llama, Gemini, and more) with a single API!
 
 > 📖 See [OPENROUTER_SETUP.md](./OPENROUTER_SETUP.md) for setup instructions and model recommendations.
@@ -18,15 +20,16 @@ A personal project that uses AI APIs (OpenRouter or OpenAI) to generate optimist
 
 ## How it Works
 
-1. **Scenario Prompting:** The script starts by prompting the gpt-4-mini model to generate positive AI scenarios based on a detailed prompt.
+1. **Scenario Prompting:** The script prompts an AI model (configurable via `.env`) to generate positive AI scenarios based on your topic.
 2. **Scenario Processing:** It then iterates through each scenario and its individual steps (items).
-3. **AI Agent Workflows:** For each step, it uses the gpt-4-mini model as an AI agent to:
+3. **AI Agent Workflows:** For each step, it uses AI to:
    - Generate an estimated timeline (ETA).
    - Generate optimistic, pessimistic, and realistic future timelines.
    - Find a relevant historical analogy.
    - Identify and analyze key stakeholders.
    - Generate innovative ideas.
-4. **Dashboard Rendering:** The Vue.js app fetches the data from the Node.js server and dynamically renders the scenarios and their details in an interactive dashboard.
+4. **Parallel Processing:** All AI calls for each item are parallelized using `Promise.all()` for 5x performance boost.
+5. **Dashboard Rendering:** The Vue.js app fetches the data from the Node.js server and dynamically renders the scenarios and their details in an interactive dashboard.
 
 ## Setup
 
@@ -229,11 +232,17 @@ See `index.js` for advanced usage, including parsing OpenAI API responses with Z
 
 This is a personal project exploring AI-generated future scenarios. It's been a great learning experience for:
 - Structured AI outputs with Zod
-- Async patterns and performance optimization
-- Security best practices
-- Testing ESM modules
+- Async patterns and performance optimization (5x speedup via parallelization)
+- Security best practices (Helmet, CORS, rate limiting, authentication)
+- Testing ESM modules with Jest
 
-See [roadmap.md](./roadmap.md) for planned improvements and current status.
+**Current Status:**
+- ✅ Core generation pipeline working
+- ✅ Security middleware implemented
+- ✅ API endpoints with authentication
+- ✅ Parallel processing for performance
+- ✅ Basic test coverage (~30%)
+- 🔄 See [roadmap.md](./roadmap.md) for planned improvements
 
 ## License
 
