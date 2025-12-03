@@ -74,6 +74,21 @@ npm install
 5.  **View the Dashboard**:
     Open your browser to [http://localhost:4000](http://localhost:4000).
 
+### Demo Mode (Curated Topics)
+
+Want to see what the AI can really do? Try the curated demo mode with 20 exceptional topics.
+
+1.  **Run Demo Mode**:
+    ```bash
+    npm run demo
+    ```
+
+2.  **Select a Category**:
+    Choose from themes like "Hidden Markets", "Societal Effects", or "Weird Science".
+
+3.  **Select a Topic**:
+    Pick a specific scenario to generate.
+
 ### Configuration
 
 Create a `.env` file in the root:

@@ -217,3 +217,67 @@ Personal project tracking for AI Scenarios Generator.
 - Compare scenarios across different AI models
 - Time-based tracking of predictions vs reality
 - Community sharing of interesting scenarios
+
+---
+
+## 🎯 Demo Use Cases: 20 Exceptional Topics
+
+Topics designed to generate surprising insights, challenge assumptions, and explore unexplored territory. These aren't the obvious "AI + X" narratives—they're thought experiments that could actually happen.
+
+### 💰 Hidden Markets & Arbitrage (4)
+1. **The Death of Credentials: Skills-First Hiring at Global Scale**
+   - _Why:_ Destroys entire industries (education, HR), creates new ones, provably happening now
+2. **AI-Powered Micro-Factories: Etsy Sellers Competing with Nike**
+   - _Why:_ Democratized manufacturing, supply chain disruption, local production renaissance
+3. **Predictive Litigation: AI That Tells You What Laws Will Pass in 5 Years**
+   - _Why:_ Policy arbitrage, regulatory foresight as a service, shapes lobbying
+4. **Synthetic Influencers Replacing Celebrity Endorsements**
+   - _Why:_ Already happening, reveals authenticity crisis, billion-dollar marketing shift
+
+### 🧠 Second-Order Societal Effects (4)
+5. **When Rural Areas Become More Valuable Than Cities (Remote Work 2.0)**
+   - _Why:_ Real estate paradigm flip, reverses urbanization, community rebirth
+6. **The Great Unbundling: Universities Lose Their Monopoly on Social Capital**
+   - _Why:_ Network effects disrupted, credentialing vs. learning split
+7. **AI Therapists Create a Mental Health Literacy Boom**
+   - _Why:_ Democratizes self-awareness, changes parenting/relationships, reduces stigma
+8. **Algorithmic Dating Causes Society to Rethink What "Love" Means**
+   - _Why:_ Philosophical crisis, cultural evolution, questions free will
+
+### 🔬 Weird Science & Edge Cases (4)
+9. **Computational Biology Discovers Emotions Are Contagious Like Viruses**
+   - _Why:_ Reframes mental health, social networks as epidemiology, new interventions
+10. **AI Finds Patterns in "Junk DNA" That Rewrite Evolution Theory**
+    - _Why:_ Paradigm-shifting science, challenges dogma, medical breakthroughs
+11. **Crowd-Sourced Drug Discovery: TikTok Users Find Cancer Cure**
+    - _Why:_ Democratized science, citizen researchers, institutional disruption
+12. **AI Detects Pre-Crime Patterns (But Used for Prevention, Not Punishment)**
+    - _Why:_ Minority Report but ethical, intervention vs. incarceration
+
+### 🎭 Cultural & Creative Disruption (4)
+13. **AI Resurrects Dead Artists to Collaborate with Living Ones**
+    - _Why:_ Copyright nightmare, creative renaissance, questions authorship/originality
+14. **Hyper-Personalized Religion: AI Spiritual Advisors for 8 Billion People**
+    - _Why:_ Disrupts organized religion, personal meaning-making, philosophy of belief
+15. **Real-Time Fact-Checking Makes Lying Obsolete (The Post-Deception Era)**
+    - _Why:_ Truth as infrastructure, death of propaganda, political realignment
+16. **AI-Generated Nostalgia: Personalized "Memories" of Childhoods You Never Had**
+    - _Why:_ Memory manipulation, therapeutic applications, identity questions
+
+### 🌌 Existential & Philosophical (4)
+17. **The Turing Test Reverses: Humans Prove They're NOT AI**
+    - _Why:_ Identity crisis, bot detection everywhere, CAPTCHA dystopia becomes real
+18. **AI Solves the Fermi Paradox by Finding Alien Civilizations in Our Data**
+    - _Why:_ Recontextualizes everything, hidden signals in plain sight, cosmic implications
+19. **Consciousness Uploading Creates a "Death Optional" Society**
+    - _Why:_ Ultimate disruption, inheritance law chaos, meaning of mortality
+20. **AI Discovers We're Living in a Simulation (And It Doesn't Matter)**
+    - _Why:_ Philosophical bomb, apathy vs. action, reveals what humans truly value
+
+### 💡 What Makes These Better
+- **Non-Obvious:** Not the standard futurist talking points
+- **Second-Order Thinking:** Explores ripple effects, not just direct applications
+- **Controversy Built-In:** Each challenges existing power structures or beliefs
+- **Concrete & Specific:** Actionable insights, not vague aspirations
+- **Spans Disciplines:** Forces unusual connections (biology + social networks, religion + personalization)
+- **Actually Possible:** Grounded in real trends, not sci-fi fantasy

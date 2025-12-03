@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "demo": "DEMO_MODE=true node index.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "keywords": [],

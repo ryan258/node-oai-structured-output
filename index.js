@@ -9,6 +9,7 @@ import rateLimit from 'express-rate-limit';
 import { generateTopics } from './functions/generateTopics.js';
 import { getUserInput } from './functions/getUserInput.js';
 import { selectTopic } from './functions/selectTopic.js';
+import { selectDemo } from './functions/selectDemo.js';
 import { ScenarioSchema, ETASchema, AnalogySchema, StakeholdersSchema, InnovationSchema, FutureTimelinesSchema } from './functions/schemas.js';
 import { getStructuredOutput } from './functions/getStructuredOutput.js';
 import { generateFutureTimelines } from './functions/generateFutureTimelines.js';
@@ -146,10 +147,14 @@ async function generateScenarios(initialTopic = null) {
       // Note: This might block if triggered via API without topic, but API should provide topic
       // For initial startup, we can still use CLI input
       if (process.stdin.isTTY) {
-        selectedTopic = await getUserInput();
-        if (!selectedTopic) {
-          const topics = await generateTopics();
-          selectedTopic = await selectTopic(topics);
+        if (process.env.DEMO_MODE === 'true') {
+          selectedTopic = await selectDemo();
+        } else {
+          selectedTopic = await getUserInput();
+          if (!selectedTopic) {
+            const topics = await generateTopics();
+            selectedTopic = await selectTopic(topics);
+          }
         }
       } else {
         console.log("Non-interactive mode: Skipping manual input.");
@@ -283,7 +288,23 @@ if (process.env.NODE_ENV !== 'test') {
 
     // Trigger initial generation if running interactively
     if (process.stdin.isTTY) {
-      generateScenarios();
+      if (process.env.DEMO_MODE === 'true') {
+        // Loop for demo mode to allow continuous selection
+        (async () => {
+          while (true) {
+            try {
+              await generateScenarios();
+              console.log('\n----------------------------------------\n');
+            } catch (err) {
+              console.error('Error in demo loop:', err);
+              // Prevent tight loop on error
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          }
+        })();
+      } else {
+        generateScenarios();
+      }
     }
   });
 }
