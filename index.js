@@ -119,6 +119,19 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
+/**
+ * Generates AI scenarios based on a given topic or user input.
+ * 
+ * This function orchestrates the entire generation process:
+ * 1. Determines the topic (from argument, CLI input, or random generation).
+ * 2. Generates high-level scenarios using OpenAI.
+ * 3. For each scenario item, generates detailed attributes (ETA, Analogy, Stakeholders, etc.) in parallel.
+ * 4. Compiles the results into a Markdown report.
+ * 5. Saves the report to a file.
+ * 
+ * @param {string|null} [initialTopic=null] - The topic to generate scenarios for. If null, will prompt user or generate random topics.
+ * @returns {Promise<void>}
+ */
 async function generateScenarios(initialTopic = null) {
   // isGenerating check removed here as it is handled in the route handler
   // However, we keep the flag management in case this is called internally

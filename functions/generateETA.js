@@ -1,6 +1,12 @@
 import { ETASchema } from './schemas.js';
 import { getStructuredOutput } from './getStructuredOutput.js';
 
+/**
+ * Generates an estimated timeline (ETA) for a specific scenario item.
+ * 
+ * @param {string} item - The scenario item/step to estimate.
+ * @returns {Promise<{eta: string}>} A promise that resolves to an object containing the ETA string.
+ */
 export async function generateETA(item) {
   try {
     const etaPrompt = `Consider the following step towards a positive AI scenario: "${item}"

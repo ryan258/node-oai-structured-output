@@ -1,3 +1,10 @@
+/**
+ * Generates a Markdown report for a complete scenario.
+ * 
+ * @param {object} scenario - The high-level scenario object.
+ * @param {Array<object>} items - The detailed items/steps for the scenario.
+ * @returns {Promise<string>} A promise that resolves to the Markdown string.
+ */
 export async function generateMarkdownForScenario(scenario, items) {
   let markdownContent = '';
   markdownContent += `## ${scenario.title}\n\n`;

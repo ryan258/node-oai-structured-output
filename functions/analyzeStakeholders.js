@@ -1,6 +1,13 @@
 import { StakeholdersSchema } from './schemas.js';
 import { getStructuredOutput } from './getStructuredOutput.js';
 
+/**
+ * Identifies and analyzes key stakeholders for a scenario item.
+ * 
+ * @param {string} scenarioItem - The scenario item to analyze.
+ * @returns {Promise<{stakeholders: Array<{name: string, role: string, description: string}>}>} 
+ *          A promise that resolves to an object containing an array of stakeholder objects.
+ */
 export async function analyzeStakeholders(scenarioItem) {
   try {
     const stakeholdersPrompt = `

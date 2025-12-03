@@ -1,6 +1,13 @@
 import { AnalogySchema } from './schemas.js';
 import { getStructuredOutput } from './getStructuredOutput.js';
 
+/**
+ * Generates an analogy to explain a scenario item.
+ * 
+ * @param {string} item - The scenario item to explain.
+ * @returns {Promise<{event: string, similarity: string, lesson: string}>} 
+ *          A promise that resolves to an object containing the analogy details.
+ */
 export async function generateAnalogy(item) {
   try {
     const analogyPrompt = `Consider this step towards a positive AI scenario: "${item}"
