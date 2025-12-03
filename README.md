@@ -42,6 +42,35 @@ A personal project that uses AI APIs (OpenRouter or OpenAI) to generate optimist
 npm install
 ```
 
+### Quick Start (Interactive Mode)
+
+1.  **Setup Configuration**:
+    Copy the example environment file and add your API key.
+    ```bash
+    cp .env.example .env
+    # Edit .env and set OPENROUTER_API_KEY or OPENAI_API_KEY
+    # Set ADMIN_API_KEY to a secure value (e.g., "secret123")
+    ```
+
+2.  **Start the Server**:
+    Run the application in your terminal.
+    ```bash
+    npm start
+    ```
+
+3.  **Follow the Prompts**:
+    The CLI will ask for a topic.
+    ```text
+    Enter a scenario prompt (or press Enter for AI-generated topics):
+    > The Future of Urban Gardening
+    ```
+
+4.  **Wait for Generation**:
+    The AI will generate scenarios, timelines, and analysis. This takes about 15-20 seconds.
+
+5.  **View the Dashboard**:
+    Open your browser to [http://localhost:4000](http://localhost:4000).
+
 ### Configuration
 
 Create a `.env` file in the root:
@@ -50,6 +79,7 @@ Create a `.env` file in the root:
    ```bash
    USE_OPENROUTER=true
    OPENROUTER_API_KEY=your_openrouter_api_key_here
+   ADMIN_API_KEY=your_secure_admin_key
    AI_MODEL=openai/gpt-4o-mini
    PORT=4000
    ```
@@ -58,6 +88,7 @@ Create a `.env` file in the root:
    ```bash
    USE_OPENROUTER=false
    OPENAI_API_KEY=your_openai_api_key_here
+   ADMIN_API_KEY=your_secure_admin_key
    AI_MODEL=gpt-4o-mini
    PORT=4000
    ```
@@ -71,6 +102,12 @@ npm start
 ```
 
 The server starts at `http://localhost:4000` (or your configured PORT). In interactive mode (terminal), you'll be prompted for a scenario topic. Otherwise, use the API endpoint to trigger generation.
+
+### Troubleshooting
+
+-   **"Unauthorized" Error**: Make sure your `x-admin-key` header matches the `ADMIN_API_KEY` in your `.env` file.
+-   **"Topic cannot be empty"**: Ensure you are sending a JSON body with a `topic` field.
+-   **Server Address in Use**: If port 4000 is busy, change `PORT` in `.env`.
 
 ### Testing
 
