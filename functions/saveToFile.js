@@ -19,9 +19,10 @@ export async function saveToFile(content, prefix = 'ai_positive_scenarios') {
 
   try {
     await fs.promises.writeFile(`${directory}/${filename}`, content);
-    console.log(`File '${filename}' saved to '${directory}' directory! `);
+    console.log(`File '${filename}' saved to '${directory}' directory!`);
     return `${directory}/${filename}`;
   } catch (err) {
     console.error(`Error writing to file '${filename}':`, err);
+    throw err; // Rethrow so callers know the operation failed
   }
 }
